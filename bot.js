@@ -20,6 +20,11 @@ const {
   priceTemplateFinexbox
 } = priceData
 
+const config = {
+  headers: {
+    ['X-CMC_PRO_API_KEY']: process.env.coinMarketCapKey
+  }
+}
 client.on('message', msg => {
   if (msg.content.startsWith('!'))
     console.log(
@@ -42,11 +47,6 @@ client.on('message', msg => {
 
 client.on('message', msg => {
   if (msg.content === '!mcap') {
-    let config = {
-      headers: {
-        ['X-CMC_PRO_API_KEY']: process.env.coinMarketCapKey
-      }
-    }
     axios
       .all([
         axios.get(
@@ -111,11 +111,23 @@ client.on('message', msg => {
         axios.get(`https://vcc.exchange/api/v2/summary`), // vcc without param
         axios.get('https://api.upbit.com/v1/ticker?markets=BTC-RADS'), //upbit with param
         axios.get('https://api.upbit.com/v1/ticker?markets=USDT-BTC'), //upbit with param
-        axios.get('https://xapi.finexbox.com/v1/market') // finebox without param
+        axios.get('https://xapi.finexbox.com/v1/market'), // finebox without param
+        axios.get(
+          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC',
+          config
+        ) // This is the BTC USD Price for converting finexbox RADS/BTC price to USD. !!! Will have small discrepancy as not getting the BTC/USD price from finexbox directly'
       ])
       .then(
         axios.spread(
-          (bittrex, bittrexBTCData, vcc, upbit, upbitBTCData, finebox) => {
+          (
+            bittrex,
+            bittrexBTCData,
+            vcc,
+            upbit,
+            upbitBTCData,
+            finebox,
+            coinMarketCapBTCData
+          ) => {
             const bittrexData = bittrex.data.success
               ? bittrex.data.result[0]
               : {}
@@ -136,6 +148,8 @@ client.on('message', msg => {
             const fineboxData = ramda.isNil(finebox.data.result[fineboxID])
               ? {}
               : finebox.data.result[fineboxID]
+            const coinMarketCapBTC =
+              coinMarketCapBTCData.data.data.BTC.quote.USD.price
             const embed = {
               description: `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
                 'Bittrex',
@@ -154,7 +168,8 @@ client.on('message', msg => {
                   )}
                   \n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html)${priceTemplateFinexbox(
                     'Finexbox',
-                    fineboxData
+                    fineboxData,
+                    coinMarketCapBTC
                   )}`,
               color: 4405442
             }

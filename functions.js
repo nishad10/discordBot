@@ -71,8 +71,10 @@ exports.priceTemplateUpbit = (name, data, btc) =>
     ? '📈'
     : '📉'}`
 
-exports.priceTemplateFinexbox = (name, data) =>
-  ` : ${parseFloat(data.price).toFixed(8)} BTC **|** $0.0
+exports.priceTemplateFinexbox = (name, data, btc) =>
+  ` : ${parseFloat(data.price).toFixed(8)} BTC **|** $${parseFloat(
+    data.price * btc
+  ).toFixed(2)}
 **Vol:** ${Math.round(data.volume)} RADS **|** ${(parseFloat(
     data.price
   ).toFixed(8) * Math.round(data.volume)
