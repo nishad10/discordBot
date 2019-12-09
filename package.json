@@ -1,0 +1,20 @@
+{
+  "name": "discordBot",
+  "version": "1.0.0",
+  "description": "A discord bot",
+  "main": "index.js",
+  "repository": "https://github.com/nishad10/discordBot.git",
+  "author": "Nishad Aherrao",
+  "license": "GNU GPL",
+  "private": false,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "ramda": "^0.26.1"
+  }
+}
