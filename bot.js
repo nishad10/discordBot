@@ -4,7 +4,14 @@ const dotenv = require('dotenv')
 const priceData = require('./functions')
 const axios = require('axios')
 const ramda = require('ramda')
+
 const token = process.env.botToken
+const logChannel = process.env.logChannel
+const whiteListGuilds = [
+  '648922022809829407',
+  '339068670372478976',
+  '568890299028471809'
+] // dev personal , radium dev/management, radium public.
 /*
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
@@ -18,23 +25,26 @@ const {
 } = priceData
 
 client.on('message', msg => {
-  if (msg.content.startsWith('!'))
-    console.log(
-      `\x1b[36m Requested by ID: \x1b[0m${msg.author
-        .id}, \x1b[36m Alias Username: \x1b[0m${msg.author.username} ${msg.guild
-        ? `\x1b[36m Group chat: True`
-        : `\x1b[36m Group chat: False`}
+  if (ramda.contains(msg.guild.id, whiteListGuilds))
+    if (msg.content.startsWith('!'))
+      console.log(
+        `\x1b[36m Requested by ID: \x1b[0m${msg.author
+          .id}, \x1b[36m Alias Username: \x1b[0m${msg.author
+          .username} ${msg.guild
+          ? `\x1b[36m Group chat: True`
+          : `\x1b[36m Group chat: False`}
       \x1b[36m Msg Txt: \x1b[0m${msg.content}`
-    )
+      )
 })
 
 // This is for timestamp of joining date if we need it for banning people based on recent join (raid)
 //msg.member.joinedTimestamp
 
 client.on('message', msg => {
-  if (msg.content === '!ping') {
-    msg.channel.send('pong')
-  }
+  if (ramda.contains(msg.guild.id, whiteListGuilds))
+    if (msg.content === '!ping') {
+      msg.channel.send('pong')
+    }
 })
 
 client.on('message', msg => {
@@ -58,75 +68,77 @@ client.on('message', msg => {
       .then(
         axios.spread((mcap, btc) => {
           msg.channel.send(
-            `***$${Math.round(
+            `**$${Math.round(
               mcap.data.data.RADS.quote.USD.market_cap
             ).toLocaleString()} | ${parseFloat(
               mcap.data.data.RADS.quote.USD.market_cap /
                 btc.data.data.BTC.quote.USD.price
-            ).toFixed(2)} BTC***`
+            ).toFixed(2)} BTC**`
           )
         })
       )
-      .catch(error => console.log(error))
+      .catch(error => console.log('ERROR while getting MCAP VALUE', error))
   }
 })
 client.on('message', msg => {
-  if (msg.content === '!help') {
-    msg.channel.send(
-      '```yaml\n !price - Latest price/information of RADS exchanges.\n !mcap - To get the market capitalization of RADS```'
-    )
-  }
+  if (ramda.contains(msg.guild.id, whiteListGuilds))
+    if (msg.content === '!help') {
+      msg.channel.send(
+        '```\n !price - Latest price/information of RADS exchanges.\n !mcap  - To get the market capitalization of RADS```'
+      )
+    }
 })
 
 client.on('message', msg => {
-  if (
-    msg.content === '!price' ||
-    msg.content === '!exchanges' ||
-    msg.content === '!listings' ||
-    msg.content === '!market'
-  ) {
-    axios
-      .all([
-        axios.get(
-          'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=btc-rads'
-        ), //bittrex with param
-        axios.get(
-          'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=USD-BTC'
-        ),
-        axios.get(`https://vcc.exchange/api/v2/summary`), // vcc without param
-        axios.get('https://api.upbit.com/v1/ticker?markets=BTC-RADS'), //upbit with param
-        axios.get('https://api.upbit.com/v1/ticker?markets=USDT-BTC'), //upbit with param
-        axios.get('https://xapi.finexbox.com/v1/market') // finebox without param
-      ])
-      .then(
-        axios.spread(
-          (bittrex, bittrexBTCData, vcc, upbit, upbitBTCData, finebox) => {
-            const bittrexData = bittrex.data.success
-              ? bittrex.data.result[0]
-              : {}
-            const bittrexBTC = bittrexBTCData.data.success
-              ? bittrexBTCData.data.result[0].Last
-              : 0
-            const vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
-              ? {}
-              : ramda.prop('rads_btc', vcc.data.data)
-            const vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
-              ? 0
-              : ramda.prop('btc_usdt', vcc.data.data).last
-            const upbitData = upbit.data[0]
-            const upbitBTC = upbitBTCData.data[0].trade_price
-            const fineboxID = ramda.findIndex(
-              ramda.propEq('market', 'RADS_BTC')
-            )(finebox.data.result)
-            const fineboxData = ramda.isNil(finebox.data.result[fineboxID])
-              ? {}
-              : finebox.data.result[fineboxID]
-            const embed = {
-              description: `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
-                'Bittrex',
-                bittrexData,
-                bittrexBTC
-              )}
+  if (ramda.contains(msg.guild.id, whiteListGuilds))
+    if (
+      msg.content === '!price' ||
+      msg.content === '!exchanges' ||
+      msg.content === '!listings' ||
+      msg.content === '!market'
+    ) {
+      axios
+        .all([
+          axios.get(
+            'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=btc-rads'
+          ), //bittrex with param
+          axios.get(
+            'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=USD-BTC'
+          ),
+          axios.get(`https://vcc.exchange/api/v2/summary`), // vcc without param
+          axios.get('https://api.upbit.com/v1/ticker?markets=BTC-RADS'), //upbit with param
+          axios.get('https://api.upbit.com/v1/ticker?markets=USDT-BTC'), //upbit with param
+          axios.get('https://xapi.finexbox.com/v1/market') // finebox without param
+        ])
+        .then(
+          axios.spread(
+            (bittrex, bittrexBTCData, vcc, upbit, upbitBTCData, finebox) => {
+              const bittrexData = bittrex.data.success
+                ? bittrex.data.result[0]
+                : {}
+              const bittrexBTC = bittrexBTCData.data.success
+                ? bittrexBTCData.data.result[0].Last
+                : 0
+              const vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
+                ? {}
+                : ramda.prop('rads_btc', vcc.data.data)
+              const vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
+                ? 0
+                : ramda.prop('btc_usdt', vcc.data.data).last
+              const upbitData = upbit.data[0]
+              const upbitBTC = upbitBTCData.data[0].trade_price
+              const fineboxID = ramda.findIndex(
+                ramda.propEq('market', 'RADS_BTC')
+              )(finebox.data.result)
+              const fineboxData = ramda.isNil(finebox.data.result[fineboxID])
+                ? {}
+                : finebox.data.result[fineboxID]
+              const embed = {
+                description: `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
+                  'Bittrex',
+                  bittrexData,
+                  bittrexBTC
+                )}
                   \n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads)${priceTemplateVCC(
                     'VCC',
                     vccData,
@@ -141,19 +153,21 @@ client.on('message', msg => {
                     'Finexbox',
                     fineboxData
                   )}`,
-              color: 4405442
+                color: 4405442
+              }
+              msg.channel.send('', { embed })
             }
-            msg.channel.send('', { embed })
-          }
+          )
         )
-      )
-      .catch(error => console.log(error))
-  }
+        .catch(error => console.log('ERROR while getting PRICE VALUES', error))
+    }
 })
 
 client.on('message', message => {
-  // Ignore messages that aren't from a guild
-  if (!message.guild) return
+  if (ramda.contains(message.guild.id, whiteListGuilds))
+    if (!message.guild)
+      // Ignore messages that aren't from a guild
+      return
 
   // If the message content starts with "!kick"
   if (message.content.startsWith('!kick')) {
@@ -161,11 +175,13 @@ client.on('message', message => {
     // Read more about mentions over at https://discord.js.org/#/docs/main/stable/class/MessageMentions
 
     if (message.member.hasPermission('KICK_MEMBERS', false, false)) {
-      Array.from(message.mentions.users, ([key, value]) => {
-        const user = value
-        // const user = message.mentions.users.first()
-        // If we have a user mentioned
-        if (user) {
+      if (message.mentions.users.first()) {
+        Array.from(message.mentions.users, ([key, value]) => {
+          const user = value
+          // const user = message.mentions.users.first()
+          // If we have a user mentioned
+
+          // Exclude bot from kicking itself to avoid circular
           if (user.id !== '653386053356617768') {
             // Now we get the member from the user
             const member = message.guild.member(user)
@@ -181,38 +197,66 @@ client.on('message', message => {
                 .then(() => {
                   // We let the message author know we were able to kick the person
                   client.channels
-                    .get('652982383003435008')
-                    .send(`Successfully kicked ${user.tag}`)
+                    .get(logChannel)
+                    .send(
+                      `id:${message.author.id},username:${message.author
+                        .username}issued command and successfully kicked ${user.tag} at ${new Date().toLocaleDateString()}`
+                    )
                 })
                 .catch(err => {
                   // An error happened
                   // This is generally due to the bot not being able to kick the member,
                   // either due to missing permissions or role hierarchy
-                  message.reply('I was unable to kick the member')
+                  client.channels
+                    .get(logChannel)
+                    .send(
+                      `${message.author
+                        .username} issued ${message.content}. ERROR: Unable to kick the ${user.tag} this might be because I dont have permissions.`
+                    )
                   // Log the error
-                  console.error(err)
+                  console.error('BOT couldnt KICK maybe permission error.', err)
                 })
             } else {
               // The mentioned user isn't in this guild
-              message.reply("That user isn't in this guild!")
+              client.channels
+                .get(logChannel)
+                .send(
+                  `${message.author
+                    .username} issued ${message.content}. ERROR: Unable to kick the ${user.tag} this might be because user doesnt exist in server.`
+                )
             }
             // Otherwise, if no user was mentioned
           } else {
-            message.reply("You didn't mention the user to kick!")
+            client.channels
+              .get(logChannel)
+              .send(
+                `${message.author
+                  .username} issued ${message.content}. ERROR: Unable to kick the ${user.tag} you cannot kick me using commands.`
+              )
           }
-        } else {
-          message.reply('Dont kick me!')
-        }
-      })
+        })
+      } else {
+        client.channels
+          .get(logChannel)
+          .send(
+            `${message.author
+              .username} issued ${message.content}. ERROR: Unable to kick this might be because you didnt specify users to kick`
+          )
+      }
     } else {
-      message.reply('You dont have the permission to kick people.')
+      console.error(
+        `${message.author
+          .username} issued ${message.content}. ERROR: You dont have permission to do this.`
+      )
     }
   }
 })
 
 client.on('message', message => {
-  // Ignore messages that aren't from a guild
-  if (!message.guild) return
+  if (ramda.contains(message.guild.id, whiteListGuilds))
+    if (!message.guild)
+      // Ignore messages that aren't from a guild
+      return
 
   // if the message content starts with "!ban"
   if (message.content.startsWith('!ban')) {
@@ -220,10 +264,10 @@ client.on('message', message => {
     // Read more about mentions over at https://discord.js.org/#/docs/main/stable/class/MessageMentions
 
     if (message.member.hasPermission('KICK_MEMBERS', false, false)) {
-      Array.from(message.mentions.users, ([key, value]) => {
-        const user = value
-        // If we have a user mentioned
-        if (user) {
+      if (message.mentions.users.first()) {
+        Array.from(message.mentions.users, ([key, value]) => {
+          const user = value
+          // If we have a user mentioned
           if (user.id !== '653386053356617768') {
             // Now we get the member from the user
             const member = message.guild.member(user)
@@ -243,33 +287,62 @@ client.on('message', message => {
                 .then(() => {
                   // We let the message author know we were able to ban the person
                   client.channels
-                    .get('652982383003435008')
-                    .send(`Successfully kicked ${user.tag}`)
+                    .get(logChannel)
+                    .send(
+                      `id:${message.author.id},username:${message.author
+                        .username}issued command and successfully banned ${user.tag} at ${new Date().toLocaleDateString()}`
+                    )
                 })
                 .catch(err => {
                   // An error happened
                   // This is generally due to the bot not being able to ban the member,
                   // either due to missing permissions or role hierarchy
-                  message.reply('I was unable to ban the member')
-                  // Log the error
-                  console.error(err)
+                  client.channels
+                    .get(logChannel)
+                    .send(
+                      `${message.author
+                        .username} issued ${message.content}. ERROR: Unable to BAN the ${user.tag} this might be because I dont have permissions.`
+                    ) // Log the error
+                  console.error('BOT couldnt BAN maybe permission error.', err)
                 })
             } else {
               // The mentioned user isn't in this guild
-              message.reply("That user isn't in this guild!")
+              client.channels
+                .get(logChannel)
+                .send(
+                  `${message.author
+                    .username} issued ${message.content}. ERROR: Unable to BAN the ${user.tag} this might be because user doesnt exist in server.`
+                )
             }
           } else {
             // Otherwise, if no user was mentioned
-            message.reply("You didn't mention the user to ban!")
+            client.channels
+              .get(logChannel)
+              .send(
+                `${message.author
+                  .username} issued ${message.content}. ERROR: Unable to BAN the ${user.tag} you cannot kick me using commands.`
+              )
           }
-        } else {
-          message.reply('Dont ban me!')
-        }
-      })
+        })
+      } else {
+        client.channels
+          .get(logChannel)
+          .send(
+            `${message.author
+              .username} issued ${message.content}. ERROR: Unable to BAN this might be because you didnt specify users to kick`
+          )
+      }
     } else {
-      message.reply('You dont have the permission to ban people.')
+      console.error(
+        `${message.author
+          .username} issued ${message.content}. ERROR: You dont have permission to do this.`
+      )
     }
   }
 })
-
+client.on('disconnect', () => {
+  console.log(
+    `BOT shutting down at ${new Date().toLocaleDateString()} TIME : ${new Date().toLocaleTimeString()}`
+  )
+})
 client.login(token)
