@@ -18,6 +18,20 @@ const {
 } = priceData
 
 client.on('message', msg => {
+  if (msg.content.startsWith('!'))
+    console.log(
+      `\x1b[36m Requested by ID: \x1b[0m${msg.author
+        .id}, \x1b[36m Alias Username: \x1b[0m${msg.author.username} ${msg.guild
+        ? `\x1b[36m Group chat: True`
+        : `\x1b[36m Group chat: False`}
+      \x1b[36m Msg Txt: \x1b[0m${msg.content}`
+    )
+})
+
+// This is for timestamp of joining date if we need it for banning people based on recent join (raid)
+//msg.member.joinedTimestamp
+
+client.on('message', msg => {
   if (msg.content === '!ping') {
     msg.channel.send('pong')
   }
