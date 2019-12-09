@@ -82,6 +82,18 @@ client.on('message', msg => {
 })
 
 client.on('message', msg => {
+  if (msg.content === '!mod') {
+    if (msg.member.hasPermission('KICK_MEMBERS', false, false)) {
+      msg.channel.send(
+        '```\n!kick - Followed by this command give me a list of users to kick, make sure you @mention them. Example !kick @radiumBot\n\n!ban - Followed by this command give me a list of users to ban, make sure you @mention them. Example !ban @radiumBot```'
+      )
+    } else {
+      console.log('ERROR user without permissions tried !mod command')
+    }
+  }
+})
+
+client.on('message', msg => {
   if (
     msg.content === '!price' ||
     msg.content === '!exchanges' ||
@@ -277,7 +289,7 @@ client.on('message', message => {
     // Assuming we mention someone in the message, this will return the user
     // Read more about mentions over at https://discord.js.org/#/docs/main/stable/class/MessageMentions
 
-    if (message.member.hasPermission('KICK_MEMBERS', false, false)) {
+    if (member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'])) {
       if (message.mentions.users.first()) {
         Array.from(message.mentions.users, ([key, value]) => {
           const user = value
