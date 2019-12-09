@@ -23,6 +23,39 @@ client.on('message', msg => {
 })
 
 client.on('message', msg => {
+  if (msg.content === '!mcap') {
+    let config = {
+      headers: {
+        ['X-CMC_PRO_API_KEY']: process.env.coinMarketCapKey
+      }
+    }
+    axios
+      .all([
+        axios.get(
+          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=RADS',
+          config
+        ),
+        axios.get(
+          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC',
+          config
+        )
+      ])
+      .then(
+        axios.spread((mcap, btc) => {
+          msg.channel.send(
+            `***$${Math.round(
+              mcap.data.data.RADS.quote.USD.market_cap
+            ).toLocaleString()} | ${parseFloat(
+              mcap.data.data.RADS.quote.USD.market_cap /
+                btc.data.data.BTC.quote.USD.price
+            ).toFixed(2)} BTC***`
+          )
+        })
+      )
+      .catch(error => console.log(error))
+  }
+})
+client.on('message', msg => {
   if (msg.content === '!help') {
     msg.channel.send(
       '```yaml\n !price - Latest price/information of RADS exchanges.\n !mcap - To get the market capitalization of RADS```'
