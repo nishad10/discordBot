@@ -161,7 +161,7 @@ client.on('message', msg => {
                     vccData,
                     vccBTC
                   )}
-                  \n[UPbit Korea](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
+                  \n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
                     'Upbit',
                     upbitData,
                     upbitBTC

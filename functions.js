@@ -84,8 +84,11 @@ exports.priceTemplateFinexbox = (name, data, btc) =>
 **Low:** ${parseFloat(data.low).toFixed(8)} **|** **High:** ${parseFloat(
     data.high
   ).toFixed(8)}
-**24h change:** ${parseFloat(data.percent).toFixed(2)}% ${parseFloat(
+**24h change:** N/A`
+
+/*
+    ${parseFloat(data.percent).toFixed(2)}% ${parseFloat(
     data.percent
   ).toFixed(8) >= 0
     ? ' ⬆️'
-    : ' ⬇️'}`
+    : ' ⬇️'}*/
