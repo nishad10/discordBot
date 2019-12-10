@@ -177,7 +177,13 @@ client.on('message', msg => {
           }
         )
       )
-      .catch(error => console.log('ERROR while getting PRICE VALUES', error))
+      .catch(error => {
+        console.log('ERROR while getting PRICE VALUES', error)
+        message.channel.send(
+          `Hey ${message.author
+            .username} looks like the server we get data from is down. Try again after some time.`
+        )
+      })
   }
 })
 
