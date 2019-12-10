@@ -161,7 +161,7 @@ client.on('message', msg => {
                     vccData,
                     vccBTC
                   )}
-                  \n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
+                  \n[UPbit Korea](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
                     'Upbit',
                     upbitData,
                     upbitBTC
@@ -304,7 +304,7 @@ client.on('message', message => {
     // Assuming we mention someone in the message, this will return the user
     // Read more about mentions over at https://discord.js.org/#/docs/main/stable/class/MessageMentions
 
-    if (member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'])) {
+    if (message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'])) {
       if (message.mentions.users.first()) {
         Array.from(message.mentions.users, ([key, value]) => {
           const user = value
