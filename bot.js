@@ -5,6 +5,9 @@ const priceData = require('./functions')
 const axios = require('axios')
 const ramda = require('ramda')
 
+const httpClient = axios.create()
+httpClient.defaults.timeout = 5000
+
 const token = process.env.botToken
 const logChannel = process.env.logChannel
 const whiteListGuilds = ['339068670372478976', '568890299028471809'] // dev personal , radium dev/management, radium public.
@@ -49,11 +52,11 @@ client.on('message', msg => {
   if (msg.content === '!mcap') {
     axios
       .all([
-        axios.get(
+        httpClient.get(
           'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=RADS',
           config
         ),
-        axios.get(
+        httpClient.get(
           'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC',
           config
         )
@@ -103,17 +106,17 @@ client.on('message', msg => {
   ) {
     axios
       .all([
-        axios.get(
+        httpClient.get(
           'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=btc-rads'
         ), //bittrex with param
-        axios.get(
+        httpClient.get(
           'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=USD-BTC'
         ),
-        axios.get(`https://vcc.exchange/api/v2/summary`), // vcc without param
-        axios.get('https://api.upbit.com/v1/ticker?markets=BTC-RADS'), //upbit with param
-        axios.get('https://api.upbit.com/v1/ticker?markets=USDT-BTC'), //upbit with param
-        axios.get('https://xapi.finexbox.com/v1/market'), // finebox without param
-        axios.get(
+        httpClient.get(`https://vcc.exchange/api/v2/summary`), // vcc without param
+        httpClient.get('https://api.upbit.com/v1/ticker?markets=BTC-RADS'), //upbit with param
+        httpClient.get('https://api.upbit.com/v1/ticker?markets=USDT-BTC'), //upbit with param
+        httpClient.get('https://xapi.finexbox.com/v1/market'), // finebox without param
+        httpClient.get(
           'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC',
           config
         ) // This is the BTC USD Price for converting finexbox RADS/BTC price to USD. !!! Will have small discrepancy as not getting the BTC/USD price from finexbox directly'
