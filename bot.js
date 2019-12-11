@@ -16,6 +16,10 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
 })
 */
+function useNull() {
+  return undefined
+}
+
 const {
   priceTemplateBittrex,
   priceTemplateVCC,
@@ -73,7 +77,7 @@ client.on('message', msg => {
           )
         })
       )
-      .catch(error => console.log('ERROR while getting MCAP VALUE', error))
+      .catch(error => console.log(error))
   }
 })
 client.on('message', msg => {
@@ -95,7 +99,14 @@ client.on('message', msg => {
     }
   }
 })
-
+let vccBTC = 0
+let vccData = 0
+let bittrexData = 0
+let bittrexBTC = 0
+let upbitBTC = 0
+let upbitData = 0
+let fineboxData = 0
+let coinMarketCapBTC = 0
 client.on('message', msg => {
   const save = msg
   if (
@@ -106,20 +117,30 @@ client.on('message', msg => {
   ) {
     axios
       .all([
-        httpClient.get(
-          'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=btc-rads'
-        ), //bittrex with param
-        httpClient.get(
-          'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=USD-BTC'
-        ),
-        httpClient.get(`https://vcc.exchange/api/v2/summary`), // vcc without param
-        httpClient.get('https://api.upbit.com/v1/ticker?markets=BTC-RADS'), //upbit with param
-        httpClient.get('https://api.upbit.com/v1/ticker?markets=USDT-BTC'), //upbit with param
-        httpClient.get('https://xapi.finexbox.com/v1/market'), // finebox without param
-        httpClient.get(
-          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC',
-          config
-        ) // This is the BTC USD Price for converting finexbox RADS/BTC price to USD. !!! Will have small discrepancy as not getting the BTC/USD price from finexbox directly'
+        httpClient
+          .get(
+            'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=btc-rads'
+          )
+          .catch(useNull),
+        httpClient
+          .get(
+            'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=USD-BTC'
+          )
+          .catch(useNull),
+        httpClient.get(`https://vcc.exchange/api/v2/summary`).catch(useNull),
+        httpClient
+          .get('https://api.upbit.com/v1/ticker?markets=BTC-RADS')
+          .catch(useNull),
+        httpClient
+          .get('https://api.upbit.com/v1/ticker?markets=USDT-BTC')
+          .catch(useNull),
+        httpClient.get('https://xapi.finexbox.com/v1/market').catch(useNull),
+        httpClient
+          .get(
+            'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC',
+            config
+          )
+          .catch(useNull)
       ])
       .then(
         axios.spread(
@@ -132,49 +153,62 @@ client.on('message', msg => {
             finebox,
             coinMarketCapBTCData
           ) => {
-            const bittrexData = bittrex.data.success
-              ? bittrex.data.result[0]
-              : {}
-            const bittrexBTC = bittrexBTCData.data.success
-              ? bittrexBTCData.data.result[0].Last
-              : 0
-            const vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
-              ? {}
-              : ramda.prop('rads_btc', vcc.data.data)
-            const vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
-              ? 0
-              : ramda.prop('btc_usdt', vcc.data.data).last
-            const upbitData = upbit.data[0]
-            const upbitBTC = upbitBTCData.data[0].trade_price
-            const fineboxID = ramda.findIndex(
-              ramda.propEq('market', 'RADS_BTC')
-            )(finebox.data.result)
-            const fineboxData = ramda.isNil(finebox.data.result[fineboxID])
-              ? {}
-              : finebox.data.result[fineboxID]
-            const coinMarketCapBTC =
-              coinMarketCapBTCData.data.data.BTC.quote.USD.price
+            if (!ramda.isNil(bittrex) && !ramda.isNil(bittrexBTCData)) {
+              bittrexData = bittrex.data.success ? bittrex.data.result[0] : {}
+              bittrexBTC = bittrexBTCData.data.success
+                ? bittrexBTCData.data.result[0].Last
+                : 0
+            }
+            if (!ramda.isNil(vcc)) {
+              vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
+                ? {}
+                : ramda.prop('rads_btc', vcc.data.data)
+              vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
+                ? 0
+                : ramda.prop('btc_usdt', vcc.data.data).last
+            }
+            if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
+              upbitData = upbit.data[0]
+              upbitBTC = upbitBTCData.data[0].trade_price
+            }
+            if (!ramda.isNil(finebox) && !ramda.isNil(coinMarketCapBTCData)) {
+              fineboxID = ramda.findIndex(ramda.propEq('market', 'RADS_BTC'))(
+                finebox.data.result
+              )
+              fineboxData = finebox.data.result[fineboxID]
+
+              coinMarketCapBTC =
+                coinMarketCapBTCData.data.data.BTC.quote.USD.price
+            }
             const embed = {
-              description: `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
-                'Bittrex',
-                bittrexData,
-                bittrexBTC
-              )}
-                  \n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads)${priceTemplateVCC(
+              description: `${!ramda.isNil(bittrex)
+                ? `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
+                    'Bittrex',
+                    bittrexData,
+                    bittrexBTC
+                  )}`
+                : '\n[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS) servers are down.'}
+              ${!ramda.isNil(vcc)
+                ? `\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads)${priceTemplateVCC(
                     'VCC',
                     vccData,
                     vccBTC
-                  )}
-                  \n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
-                    'Upbit',
-                    upbitData,
-                    upbitBTC
-                  )}
-                  \n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html)${priceTemplateFinexbox(
-                    'Finexbox',
-                    fineboxData,
-                    coinMarketCapBTC
-                  )}`,
+                  )}`
+                : '\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads) servers are down.'}
+                  ${!ramda.isNil(upbit)
+                    ? `\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
+                        'Upbit',
+                        upbitData,
+                        upbitBTC
+                      )}`
+                    : '\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS) Servers are down.'}
+                  ${!ramda.isNil(finebox)
+                    ? `\n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html)${priceTemplateFinexbox(
+                        'Finexbox',
+                        fineboxData,
+                        coinMarketCapBTC
+                      )}`
+                    : '\n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html) Servers are down!'}`,
               color: 4405442
             }
             msg.channel.send('', { embed })
@@ -185,7 +219,7 @@ client.on('message', msg => {
         console.log('ERROR while getting PRICE VALUES', error)
         save.channel.send(
           `Hey ${save.author
-            .username} looks like the server we get data from is down. Try again after some time.`
+            .username} looks like something went wrong, try again after some time, this should not happen.`
         )
       })
   }
