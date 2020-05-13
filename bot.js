@@ -179,10 +179,11 @@ client.on('message', (msg) => {
                 ? 0
                 : ramda.prop('btc_usdt', vcc.data.data).last;
             }
-            if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
+            // Remove Upbit
+            /* if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
               upbitData = upbit.data[0];
               upbitBTC = upbitBTCData.data[0].trade_price;
-            }
+            } */
             if (
               !ramda.isNil(livecoin) &&
               livecoin.status == 200 &&
@@ -218,15 +219,6 @@ client.on('message', (msg) => {
                     )}`
                   : '\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads) servers are down.'
               }
-                  ${
-                    !ramda.isNil(upbit)
-                      ? `\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
-                          'Upbit',
-                          upbitData,
-                          upbitBTC
-                        )}`
-                      : '\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS) Servers are down.'
-                  }
                     ${
                       !ramda.isNil(livecoin) &&
                       livecoin.status == 200 &&
@@ -249,6 +241,17 @@ client.on('message', (msg) => {
                         coinMarketCapBTC
                       )}`
                     : '\n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html) Servers are down!'}
+                    
+                    Remove Upbit too
+                    ${
+                    !ramda.isNil(upbit)
+                      ? `\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
+                          'Upbit',
+                          upbitData,
+                          upbitBTC
+                        )}`
+                      : '\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS) Servers are down.'
+                  }
                     */
           }
         )
