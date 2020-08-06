@@ -179,11 +179,10 @@ client.on('message', (msg) => {
                 ? 0
                 : ramda.prop('btc_usdt', vcc.data.data).last;
             }
-            // Remove Upbit
-            /* if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
+            if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
               upbitData = upbit.data[0];
               upbitBTC = upbitBTCData.data[0].trade_price;
-            } */
+            }
             if (
               !ramda.isNil(livecoin) &&
               livecoin.status == 200 &&
@@ -229,7 +228,16 @@ client.on('message', (msg) => {
                             livecoinBTCdata
                           )}`
                         : '\n[Livecoin](https://www.livecoin.net/en/trading/RADS_BTC) servers are down.'
-                    }`,
+                    }
+                      ${
+                        !ramda.isNil(upbit)
+                          ? `\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
+                              'Upbit',
+                              upbitData,
+                              upbitBTC
+                            )}`
+                          : '\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS) Servers are down.'
+                      }`,
               color: 4405442,
             };
             msg.channel.send('', { embed });
@@ -240,18 +248,7 @@ client.on('message', (msg) => {
                         fineboxData,
                         coinMarketCapBTC
                       )}`
-                    : '\n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html) Servers are down!'}
-                    
-                    Remove Upbit too
-                    ${
-                    !ramda.isNil(upbit)
-                      ? `\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
-                          'Upbit',
-                          upbitData,
-                          upbitBTC
-                        )}`
-                      : '\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS) Servers are down.'
-                  }
+                    : '\n[FINEXBOX](https://www.finexbox.com/market/pair/RADS-BTC.html) Servers are down!'}                  
                     */
           }
         )
