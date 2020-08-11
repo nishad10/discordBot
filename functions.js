@@ -41,37 +41,19 @@ exports.priceTemplateVCC = (name, data, btc) =>
   }`;
 
 exports.priceTemplateUpbit = (name, data, btc) =>
-  ` : ${parseFloat(data.trade_price).toFixed(8)} BTC **|** $${parseFloat(
+  ` : ${parseFloat(data.trade_price).toFixed(8)} BTC | $${parseFloat(
     data.trade_price * btc
   ).toFixed(2)}
-**Vol:** ${Math.round(data.trade_volume)} RADS **|** ${(
-    parseFloat(data.trade_price).toFixed(8) * Math.round(data.trade_volume)
+**Vol:** ${Math.round(data.acc_trade_volume)} RADS **|** ${(
+    parseFloat(data.trade_price).toFixed(8) * Math.round(data.acc_trade_volume)
   ).toFixed(2)} BTC **|** ${Math.round(
-    data.trade_volume * data.trade_price * btc
+    data.acc_trade_volume * data.trade_price * btc
   )} USD
-**Low:** ${parseFloat(data.low_price).toFixed(8)} **|** **High:** ${parseFloat(
+**Low:** ${parseFloat(data.low_price).toFixed(8)} | **High:** ${parseFloat(
     data.high_price
   ).toFixed(8)}
-**24h change:** ${parseFloat(
-    Math.round(
-      100 *
-        Math.abs(
-          (data.trade_price - data.prev_closing_price) /
-            ((data.trade_price + data.prev_closing_price) / 2)
-        )
-    )
-  ).toFixed(2)}% ${
-    parseFloat(
-      Math.round(
-        100 *
-          Math.abs(
-            (data.trade_price - data.prev_closing_price) /
-              ((data.trade_price + data.prev_closing_price) / 2)
-          )
-      )
-    ).toFixed(2) >= 0
-      ? ' ⬆️'
-      : ' ⬇️'
+**24h change:** ${parseFloat(data.signed_change_rate * 100).toFixed(2)}% ${
+    parseFloat(data.signed_change_rate * 100).toFixed(2) >= 0 ? ' ⬆️' : ' ⬇️'
   }`;
 
 exports.priceTemplateFinexbox = (name, data, btc) =>
