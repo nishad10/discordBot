@@ -11,19 +11,19 @@ exports.priceTemplateBittrex = (name, data, btc) =>
 **24h change:** ${parseFloat(
     Math.round(
       100 *
-        Math.abs((data.Last - data.PrevDay) / ((data.Last + data.PrevDay) / 2))
+      Math.abs((data.Last - data.PrevDay) / ((data.Last + data.PrevDay) / 2))
     )
   ).toFixed(2)}% ${
-    parseFloat(
-      Math.round(
-        100 *
-          Math.abs(
-            (data.Last - data.PrevDay) / ((data.Last + data.PrevDay) / 2)
-          )
+  parseFloat(
+    Math.round(
+      100 *
+      Math.abs(
+        (data.Last - data.PrevDay) / ((data.Last + data.PrevDay) / 2)
       )
-    ).toFixed(2) >= 0
-      ? ' ⬆️'
-      : ' ⬇️'
+    )
+  ).toFixed(2) >= 0
+    ? ' ⬆️'
+    : ' ⬇️'
   }`;
 
 exports.priceTemplateVCC = (name, data, btc) =>
@@ -37,23 +37,28 @@ exports.priceTemplateVCC = (name, data, btc) =>
     data.high24hr
   ).toFixed(8)}
 **24h change:** ${parseFloat(data.percentChange).toFixed(2)}% ${
-    parseFloat(data.percentChange).toFixed(2) >= 0 ? ' ⬆️' : ' ⬇️'
+  parseFloat(data.percentChange).toFixed(2) >= 0 ? ' ⬆️' : ' ⬇️'
   }`;
 
-exports.priceTemplateUpbit = (name, data, btc) =>
+exports.priceTemplateUpbit = (name, data, btc, coingeckoData) =>
   ` : ${parseFloat(data.trade_price).toFixed(8)} BTC | $${parseFloat(
     data.trade_price * btc
   ).toFixed(2)}
-**Vol:** ${Math.round(data.acc_trade_volume)} RADS **|** ${(
-    parseFloat(data.trade_price).toFixed(8) * Math.round(data.acc_trade_volume)
-  ).toFixed(2)} BTC **|** ${Math.round(
-    data.acc_trade_volume * data.trade_price * btc
+**Vol:** ${Math.round(data.acc_trade_volume + (coingeckoData.converted_volume.btc * parseFloat(
+    data.trade_price
+  ).toFixed(8)))} RADS **|** ${
+  ((parseFloat(data.trade_price).toFixed(8) * Math.round(data.acc_trade_volume)) + (coingeckoData.converted_volume.btc)).toFixed(2)} BTC **|** ${Math.round(
+    (data.acc_trade_volume * data.trade_price * btc) + coingeckoData.converted_volume.usd
   )} USD
+**Volume Korea:** ${Math.abs((
+    (parseFloat(data.trade_price).toFixed(8) * Math.round(data.acc_trade_volume)) + coingeckoData.converted_volume.btc
+  ) - coingeckoData.converted_volume.btc).toFixed(2)} BTC 
+**Volume Indonesia:** ${(coingeckoData.converted_volume.btc).toFixed(2)} BTC
 **Low:** ${parseFloat(data.low_price).toFixed(8)} | **High:** ${parseFloat(
     data.high_price
   ).toFixed(8)}
 **24h change:** ${parseFloat(data.signed_change_rate * 100).toFixed(2)}% ${
-    parseFloat(data.signed_change_rate * 100).toFixed(2) >= 0 ? ' ⬆️' : ' ⬇️'
+  parseFloat(data.signed_change_rate * 100).toFixed(2) >= 0 ? ' ⬆️' : ' ⬇️'
   }`;
 
 exports.priceTemplateFinexbox = (name, data, btc) =>
