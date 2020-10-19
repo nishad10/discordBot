@@ -129,7 +129,7 @@ client.on('message', (msg) => {
             'https://api.bittrex.com/api/v1.1/public/getmarketsummary?market=USD-BTC'
           )
           .catch(useNull),
-        httpClient.get(`https://vcc.exchange/api/v2/summary`).catch(useNull),
+        // httpClient.get(`https://vcc.exchange/api/v2/summary`).catch(useNull),
         httpClient
           .get('https://api.upbit.com/v1/ticker?markets=BTC-RADS')
           .catch(useNull),
@@ -157,7 +157,7 @@ client.on('message', (msg) => {
           (
             bittrex,
             bittrexBTCData,
-            vcc,
+            // vcc,
             upbit,
             upbitBTCData,
             finebox,
@@ -171,14 +171,14 @@ client.on('message', (msg) => {
                 ? bittrexBTCData.data.result[0].Last
                 : 0;
             }
-            if (!ramda.isNil(vcc)) {
+           /* if (!ramda.isNil(vcc)) {
               vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
                 ? {}
                 : ramda.prop('rads_btc', vcc.data.data);
               vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
                 ? 0
                 : ramda.prop('btc_usdt', vcc.data.data).last;
-            }
+            }*/
             if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
               upbitData = upbit.data[0];
               upbitBTC = upbitBTCData.data[0].trade_price;
@@ -199,7 +199,22 @@ client.on('message', (msg) => {
 
               coinMarketCapBTC =
                 coinMarketCapBTCData.data.data.BTC.quote.USD.price
-            }*/ const embed = {
+            }*/
+
+            // VCC
+            /*
+                          ${
+                !ramda.isNil(vcc)
+                  ? `\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads)${priceTemplateVCC(
+                      'VCC',
+                      vccData,
+                      vccBTC
+                    )}`
+                  : '\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads) servers are down.'
+              }
+              */
+            
+            const embed = {
               description: `${
                 !ramda.isNil(bittrex)
                   ? `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
@@ -208,15 +223,6 @@ client.on('message', (msg) => {
                       bittrexBTC
                     )}`
                   : '\n[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS) servers are down.'
-              }
-              ${
-                !ramda.isNil(vcc)
-                  ? `\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads)${priceTemplateVCC(
-                      'VCC',
-                      vccData,
-                      vccBTC
-                    )}`
-                  : '\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads) servers are down.'
               }
                     ${
                       !ramda.isNil(livecoin) &&
