@@ -36,10 +36,8 @@ const config = {
 client.on('message', (msg) => {
   if (msg.content.startsWith('!'))
     console.log(
-      `\x1b[36m Requested by ID: \x1b[0m${
-      msg.author.id
-      }, \x1b[36m Alias Username: \x1b[0m${msg.author.username} ${
-      msg.guild ? `\x1b[36m Group chat: True` : `\x1b[36m Group chat: False`
+      `\x1b[36m Requested by ID: \x1b[0m${msg.author.id
+      }, \x1b[36m Alias Username: \x1b[0m${msg.author.username} ${msg.guild ? `\x1b[36m Group chat: True` : `\x1b[36m Group chat: False`
       }
       \x1b[36m Msg Txt: \x1b[0m${msg.content}`
     );
@@ -143,7 +141,7 @@ client.on('message', (msg) => {
             config
           )
           .catch(useNull),
-        httpClient
+        /*httpClient
           .get(
             'https://api.livecoin.net//exchange/ticker?currencyPair=RADS/BTC'
           )
@@ -151,6 +149,7 @@ client.on('message', (msg) => {
         httpClient
           .get('https://api.livecoin.net//exchange/ticker?currencyPair=BTC/USD')
           .catch(useNull), // LivecoinBTC
+          */
         httpClient
           .get('https://api.coingecko.com/api/v3/coins/radium')
           .catch(useNull), //coingecko
@@ -165,8 +164,6 @@ client.on('message', (msg) => {
             upbitBTCData,
             finebox,
             coinMarketCapBTCData,
-            livecoin,
-            livecoinBTC,
             coingecko
           ) => {
             let coingeckoData = {};
@@ -182,26 +179,19 @@ client.on('message', (msg) => {
                 ? bittrexBTCData.data.result[0].Last
                 : 0;
             }
-           /* if (!ramda.isNil(vcc)) {
-              vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
-                ? {}
-                : ramda.prop('rads_btc', vcc.data.data);
-              vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
-                ? 0
-                : ramda.prop('btc_usdt', vcc.data.data).last;
-            }*/
+            /* if (!ramda.isNil(vcc)) {
+               vccData = ramda.isNil(ramda.prop('rads_btc', vcc.data.data))
+                 ? {}
+                 : ramda.prop('rads_btc', vcc.data.data);
+               vccBTC = ramda.isNil(ramda.prop('btc_usdt', vcc.data.data))
+                 ? 0
+                 : ramda.prop('btc_usdt', vcc.data.data).last;
+             }*/
             if (!ramda.isNil(upbit) && !ramda.isNil(upbitBTCData)) {
               upbitData = upbit.data[0];
               upbitBTC = upbitBTCData.data[0].trade_price;
             }
-            if (
-              !ramda.isNil(livecoin) &&
-              livecoin.status == 200 &&
-              !ramda.isNil(livecoinBTC)
-            ) {
-              livecoinData = livecoin.data;
-              livecoinBTCdata = livecoinBTC.data;
-            } // Finebox unlisted so temp remove.
+            // Finebox unlisted so temp remove.
             /*if (!ramda.isNil(finebox) && !ramda.isNil(coinMarketCapBTCData)) {
               fineboxID = ramda.findIndex(ramda.propEq('market', 'RADS_BTC'))(
                 finebox.data.result
@@ -223,19 +213,15 @@ client.on('message', (msg) => {
                     )}`
                   : '\n[VCC](https://vcc.exchange/exchange/basic?currency=btc&coin=rads) servers are down.'
               }
-              */
-            
-            const embed = {
-              description: `${
-                !ramda.isNil(bittrex)
-                  ? `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
-                    'Bittrex',
-                    bittrexData,
-                    bittrexBTC
-                  )}`
-                  : '\n[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS) servers are down.'
-              }
-                    ${
+  if (
+              !ramda.isNil(livecoin) &&
+              livecoin.status == 200 &&
+              !ramda.isNil(livecoinBTC)
+            ) {
+              livecoinData = livecoin.data;
+              livecoinBTCdata = livecoinBTC.data;
+            } 
+                                  ${
                 !ramda.isNil(livecoin) &&
                   livecoin.status == 200 &&
                   !ramda.isNil(livecoinBTCdata)
@@ -246,8 +232,19 @@ client.on('message', (msg) => {
                   )}`
                   : '\n[Livecoin](https://www.livecoin.net/en/trading/RADS_BTC) servers are down.'
                 }
-                      ${
-                !ramda.isNil(upbit)
+                
+              */
+
+            const embed = {
+              description: `${!ramda.isNil(bittrex)
+                  ? `[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS)${priceTemplateBittrex(
+                    'Bittrex',
+                    bittrexData,
+                    bittrexBTC
+                  )}`
+                  : '\n[BITTREX](https://bittrex.com/Market/Index?MarketName=BTC-RADS) servers are down.'
+                }
+                      ${!ramda.isNil(upbit)
                   ? `\n[UPbit](https://upbit.com/exchange?code=CRIX.UPBIT.BTC-RADS)${priceTemplateUpbit(
                     'Upbit',
                     upbitData,
@@ -316,17 +313,13 @@ client.on('message', (message) => {
                     ? client.channels
                       .get(logChannel)
                       .send(
-                        `id:${message.author.id},username:${
-                        message.author.username
-                        }issued command and successfully kicked ${
-                        user.tag
+                        `id:${message.author.id},username:${message.author.username
+                        }issued command and successfully kicked ${user.tag
                         } at ${new Date().toLocaleDateString()}`
                       )
                     : message.channel.send(
-                      `id:${message.author.id},username:${
-                      message.author.username
-                      }issued command and successfully kicked ${
-                      user.tag
+                      `id:${message.author.id},username:${message.author.username
+                      }issued command and successfully kicked ${user.tag
                       } at ${new Date().toLocaleDateString()}`
                     );
                 })
@@ -430,17 +423,13 @@ client.on('message', (message) => {
                     ? client.channels
                       .get(logChannel)
                       .send(
-                        `id:${message.author.id},username:${
-                        message.author.username
-                        }issued command and successfully banned ${
-                        user.tag
+                        `id:${message.author.id},username:${message.author.username
+                        }issued command and successfully banned ${user.tag
                         } at ${new Date().toLocaleDateString()}`
                       )
                     : message.channel.send(
-                      `id:${message.author.id},username:${
-                      message.author.username
-                      }issued command and successfully banned ${
-                      user.tag
+                      `id:${message.author.id},username:${message.author.username
+                      }issued command and successfully banned ${user.tag
                       } at ${new Date().toLocaleDateString()}`
                     );
                 })
